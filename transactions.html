@@ -1,75 +1,57 @@
-<!DOCTYPE html>
-<html lang="th">
-<head>
-  <meta charset="UTF-8">
-  <title>รายการถอนอัตโนมัติ</title>
-  <style>
-    body {
-      background: #b60000;
-      color: #fff;
-      font-family: Tahoma, sans-serif;
-      padding: 20px;
-    }
-    .title {
-      font-size: 20px;
-      font-weight: bold;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .transaction {
-      background: rgba(255,255,255,0.1);
-      border-radius: 12px;
-      padding: 12px;
-      margin: 8px 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .status {
-      font-weight: bold;
-    }
-    .success { color: #00ff66; }
-    .pending { color: #ffcc00; }
-  </style>
-</head>
-<body>
-  <div class="title">📌 รายการถอนอัตโนมัติล่าสุด</div>
-  <div id="list"></div>
-
-  <script>
-    // 🔹 รายชื่อสุ่ม (100 รายการ)
-    const names = ["กนกวรรณ","ชัยพร","รัตนา","พลพล","ศิริพร","ณัฐพล","ปวีณา","สมชาย","วราภรณ์","ชลธิชา",
-                   "วิชัย","อารีย์","นพดล","ธนพร","ภัทรพล","อรุณี","พงศกร","สุดารัตน์","เกียรติศักดิ์","ทิพย์สุดา"];
-    const statuses = ["โอนแล้ว ✅","กำลังโอน ⏳"];
-    
-    // 🔹 สร้างรายการ 100 ชุด
-    let transactions = [];
-    for(let i=0;i<100;i++){
-      const name = names[Math.floor(Math.random()*names.length)];
-      const phone = "0" + Math.floor(600000000 + Math.random()*399999999).toString();
-      const amount = (Math.floor(Math.random()*90000)+1000).toLocaleString();
-      const status = statuses[Math.floor(Math.random()*statuses.length)];
-      transactions.push({name, phone, amount, status});
-    }
-
-    let index = 0;
-    function render(){
-      let list = document.getElementById("list");
-      list.innerHTML = "";
-      for(let i=0;i<5;i++){ // โชว์ทีละ 5 รายการ
-        let t = transactions[(index+i)%transactions.length];
-        list.innerHTML += `
-          <div class="transaction">
-            <div>${t.name} (${t.phone.slice(0,3)}-XXXX-${t.phone.slice(-4)})</div>
-            <div>${t.amount} ฿ <span class="status ${t.status.includes("โอนแล้ว")?"success":"pending"}">${t.status}</span></div>
-          </div>
+function renderList() {
+      listEl.innerHTML = "";
+      items.forEach((item, i) => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+          <h3>${item.name} (${item.phone})</h3>
+          <small>${item.time} <br> ${item.ref}</small>
+          <div class="amount">${item.amount}</div>
+          <div class="status ${item.status}">${item.status === "success" ? "โอนแล้ว" : "กำลังโอน"}</div>
         `;
-      }
-      index = (index+1)%transactions.length;
+        listEl.appendChild(div);
+
+        if (item.status === "pending") {
+          const delay = Math.floor(Math.random() * 3000) + 3000; 
+          setTimeout(() => {
+            item.status = "success";
+            renderList();
+            const statusEl = document.querySelectorAll(".status")[i];
+            if (statusEl) {
+              statusEl.classList.add("highlight");
+              setTimeout(() => statusEl.classList.remove("highlight"), 2000);
+            }
+          }, delay);
+        }
+      });
     }
 
-    render();
-    setInterval(render, 3000); // อัปเดตทุก 3 วิ
+    function getTime() {
+      return new Date().toLocaleString("th-TH", { timeZone: "Asia/Bangkok" });
+    }
+
+    function updateTime() {
+      document.getElementById("time").textContent = "อัปเดตล่าสุด: " + getTime();
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    for (let i = 0; i < 4; i++) {
+      items.push({...getRandomItem(), time: getTime()});
+    }
+    renderList();
+
+    setInterval(() => {
+      const cards = document.querySelectorAll(".card");
+      if (cards.length > 0) {
+        cards[0].classList.add("fade-out");
+        setTimeout(() => {
+          items.shift();
+          items.push({...getRandomItem(), time: getTime()});
+          renderList();
+        }, 600);
+      }
+    }, 5000);
   </script>
 </body>
 </html>
