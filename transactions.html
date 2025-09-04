@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>รายการถอนอัตโนมัติ</title>
+  <style>
+    body {
+      background: #b60000;
+      color: #fff;
+      font-family: Tahoma, sans-serif;
+      padding: 20px;
+    }
+    .title {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .transaction {
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 12px;
+      margin: 8px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .status {
+      font-weight: bold;
+    }
+    .success { color: #00ff66; }
+    .pending { color: #ffcc00; }
+  </style>
+</head>
+<body>
+  <div class="title">📌 รายการถอนอัตโนมัติล่าสุด</div>
+  <div id="list"></div>
+
+  <script>
+    // 🔹 รายชื่อสุ่ม (100 รายการ)
+    const names = ["กนกวรรณ","ชัยพร","รัตนา","พลพล","ศิริพร","ณัฐพล","ปวีณา","สมชาย","วราภรณ์","ชลธิชา",
+                   "วิชัย","อารีย์","นพดล","ธนพร","ภัทรพล","อรุณี","พงศกร","สุดารัตน์","เกียรติศักดิ์","ทิพย์สุดา"];
+    const statuses = ["โอนแล้ว ✅","กำลังโอน ⏳"];
+    
+    // 🔹 สร้างรายการ 100 ชุด
+    let transactions = [];
+    for(let i=0;i<100;i++){
+      const name = names[Math.floor(Math.random()*names.length)];
+      const phone = "0" + Math.floor(600000000 + Math.random()*399999999).toString();
+      const amount = (Math.floor(Math.random()*90000)+1000).toLocaleString();
+      const status = statuses[Math.floor(Math.random()*statuses.length)];
+      transactions.push({name, phone, amount, status});
+    }
+
+    let index = 0;
+    function render(){
+      let list = document.getElementById("list");
+      list.innerHTML = "";
+      for(let i=0;i<5;i++){ // โชว์ทีละ 5 รายการ
+        let t = transactions[(index+i)%transactions.length];
+        list.innerHTML += `
+          <div class="transaction">
+            <div>${t.name} (${t.phone.slice(0,3)}-XXXX-${t.phone.slice(-4)})</div>
+            <div>${t.amount} ฿ <span class="status ${t.status.includes("โอนแล้ว")?"success":"pending"}">${t.status}</span></div>
+          </div>
+        `;
+      }
+      index = (index+1)%transactions.length;
+    }
+
+    render();
+    setInterval(render, 3000); // อัปเดตทุก 3 วิ
+  </script>
+</body>
+</html>
